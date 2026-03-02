@@ -1,38 +1,46 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import {
+  tickets,
+  type Ticket,
+  type CreateTicketRequest,
+  type UpdateTicketRequest
+} from "@shared/schema";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getTickets(): Promise<Ticket[]>;
+  getTicket(id: number): Promise<Ticket | undefined>;
+  createTicket(ticket: CreateTicketRequest): Promise<Ticket>;
+  updateTicket(id: number, updates: UpdateTicketRequest): Promise<Ticket>;
+  deleteTicket(id: number): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  async getTickets(): Promise<Ticket[]> {
+    return await db.select().from(tickets);
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getTicket(id: number): Promise<Ticket | undefined> {
+    const [ticket] = await db.select().from(tickets).where(eq(tickets.id, id));
+    return ticket;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async createTicket(ticket: CreateTicketRequest): Promise<Ticket> {
+    const [newTicket] = await db.insert(tickets).values(ticket).returning();
+    return newTicket;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async updateTicket(id: number, updates: UpdateTicketRequest): Promise<Ticket> {
+    const [updatedTicket] = await db.update(tickets)
+      .set(updates)
+      .where(eq(tickets.id, id))
+      .returning();
+    return updatedTicket;
+  }
+
+  async deleteTicket(id: number): Promise<void> {
+    await db.delete(tickets).where(eq(tickets.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
