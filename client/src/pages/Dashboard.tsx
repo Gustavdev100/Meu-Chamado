@@ -32,7 +32,10 @@ import {
   RefreshCw,
   CheckCircle2,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Package,
+  Trash,
+  HeadphonesIcon
 } from "lucide-react";
 import {
   AlertDialog,
@@ -43,6 +46,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogFocus,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 
@@ -64,12 +68,20 @@ export default function Dashboard() {
     }
   };
 
+  const getIcon = (type: string) => {
+    switch (type) {
+      case "Compras": return <Package className="h-4 w-4" />;
+      case "MID": return <Trash className="h-4 w-4" />;
+      default: return <HeadphonesIcon className="h-4 w-4" />;
+    }
+  };
+
   return (
     <div className="flex-1 w-full p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">Painel de Chamados</h1>
-          <p className="text-muted-foreground mt-1">Gerencie e acompanhe as solicitações de suporte.</p>
+          <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">Administração HelpDesk</h1>
+          <p className="text-muted-foreground mt-1">Gerencie e realize as tratativas das solicitações.</p>
         </div>
         <Button 
           variant="outline" 
@@ -85,8 +97,8 @@ export default function Dashboard() {
 
       <Card className="border-border/60 shadow-sm rounded-xl overflow-hidden">
         <CardHeader className="bg-muted/20 pb-4 border-b border-border/40">
-          <CardTitle className="text-lg">Todos os Chamados</CardTitle>
-          <CardDescription>Visualização em tempo real da fila de atendimento.</CardDescription>
+          <CardTitle className="text-lg">Tratativa de Solicitações</CardTitle>
+          <CardDescription>Visualize e gerencie o progresso de cada chamado.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
@@ -111,9 +123,9 @@ export default function Dashboard() {
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[100px] font-semibold">ID</TableHead>
-                  <TableHead className="font-semibold">Assunto</TableHead>
-                  <TableHead className="font-semibold">Contato</TableHead>
+                  <TableHead className="w-[100px] font-semibold">Tipo / ID</TableHead>
+                  <TableHead className="font-semibold">Solicitação</TableHead>
+                  <TableHead className="font-semibold">Localização</TableHead>
                   <TableHead className="font-semibold">Prioridade</TableHead>
                   <TableHead className="font-semibold">Status</TableHead>
                   <TableHead className="font-semibold">Data</TableHead>
@@ -121,20 +133,27 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tickets.map((ticket: TicketResponse) => (
+                {tickets.map((ticket: any) => (
                   <TableRow key={ticket.id} className="group transition-colors">
-                    <TableCell className="font-medium text-muted-foreground">
-                      #{ticket.id.toString().padStart(4, '0')}
-                    </TableCell>
                     <TableCell>
-                      <div className="font-medium text-foreground">{ticket.title}</div>
-                      <div className="text-sm text-muted-foreground truncate max-w-[250px]">
-                        {ticket.description}
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-primary uppercase">
+                          {getIcon(ticket.type)}
+                          {ticket.type}
+                        </div>
+                        <span className="text-xs text-muted-foreground font-medium">#{ticket.id.toString().padStart(4, '0')}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">{ticket.contactName}</div>
-                      <div className="text-xs text-muted-foreground">{ticket.contactEmail}</div>
+                      <div className="font-medium text-foreground">{ticket.title}</div>
+                      <div className="text-xs text-muted-foreground">{ticket.contactName} ({ticket.contactEmail})</div>
+                      <div className="text-xs text-muted-foreground mt-1 line-clamp-1 italic">
+                        "{ticket.description}"
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-xs font-medium">{ticket.city}</div>
+                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{ticket.base}</div>
                     </TableCell>
                     <TableCell>
                       <TicketPriorityBadge priority={ticket.priority} />
@@ -142,8 +161,8 @@ export default function Dashboard() {
                     <TableCell>
                       <TicketStatusBadge status={ticket.status} />
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                      {ticket.createdAt ? format(new Date(ticket.createdAt), "d 'de' MMM, yyyy", { locale: ptBR }) : '-'}
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      {ticket.createdAt ? format(new Date(ticket.createdAt), "d/MM/yy HH:mm", { locale: ptBR }) : '-'}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -159,7 +178,7 @@ export default function Dashboard() {
                           
                           <DropdownMenuSub>
                             <DropdownMenuSubTrigger>
-                              Atualizar Status
+                              Mudar Status
                             </DropdownMenuSubTrigger>
                             <DropdownMenuPortal>
                               <DropdownMenuSubContent>
@@ -182,7 +201,7 @@ export default function Dashboard() {
                             className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Excluir Chamado
+                            Excluir
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -198,10 +217,9 @@ export default function Dashboard() {
       <AlertDialog open={ticketToDelete !== null} onOpenChange={(open) => !open && setTicketToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir Solicitação?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso excluirá permanentemente o chamado 
-              #{ticketToDelete?.toString().padStart(4, '0')} e removerá seus dados de nossos servidores.
+              Esta ação removerá permanentemente o chamado #{ticketToDelete?.toString().padStart(4, '0')} do sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

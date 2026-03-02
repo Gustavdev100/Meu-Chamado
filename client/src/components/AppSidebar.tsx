@@ -3,7 +3,8 @@ import { Link } from "wouter";
 import { 
   LayoutDashboard, 
   PlusCircle, 
-  TicketCheck 
+  TicketCheck,
+  Search
 } from "lucide-react";
 import {
   Sidebar,
@@ -22,14 +23,19 @@ export function AppSidebar() {
 
   const navItems = [
     {
-      title: "Painel",
-      url: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
       title: "Novo Chamado",
       url: "/",
       icon: PlusCircle,
+    },
+    {
+      title: "Acompanhar",
+      url: "/track",
+      icon: Search,
+    },
+    {
+      title: "Administração",
+      url: "/dashboard",
+      icon: LayoutDashboard,
     },
   ];
 
@@ -40,7 +46,7 @@ export function AppSidebar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
             <TicketCheck className="h-5 w-5" />
           </div>
-          <span className="font-display text-lg font-bold">HelpDesk</span>
+          <span className="font-display text-lg font-bold text-primary">HelpDesk</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -55,7 +61,7 @@ export function AppSidebar() {
                     <SidebarMenuButton 
                       asChild 
                       data-active={isActive}
-                      className={isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-muted-foreground"}
+                      className={isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-bold shadow-sm" : "text-muted-foreground font-medium"}
                     >
                       <Link href={item.url} className="flex items-center gap-3">
                         <item.icon className="h-4 w-4" />
