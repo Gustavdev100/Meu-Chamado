@@ -6,7 +6,7 @@ export const tickets = pgTable("tickets", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  type: text("type").notNull().default("Chamados"), // 'compras', 'MID', 'Chamados'
+  type: text("type").notNull().default("Chamados"), // 'Compras', 'MID', 'Chamados'
   status: text("status").notNull().default("open"), // 'open', 'in_progress', 'resolved'
   priority: text("priority").notNull().default("medium"), // 'low', 'medium', 'high'
   city: text("city").notNull(),
@@ -17,8 +17,15 @@ export const tickets = pgTable("tickets", {
   midLocation: text("mid_location"),
   midMaterialType: text("mid_material_type"),
   // Campos específicos para Compras
-  itemQuantity: integer("item_quantity"),
   itemCategory: text("item_category"),
+  items: text("items"), // Armazenar JSON string com até 6 itens
+  // Campos de Administração (Tratativas)
+  adminObservations: text("admin_observations"),
+  adminPhotoUrl: text("admin_photo_url"),
+  deadlineVisit: timestamp("deadline_visit"),
+  deadlineQuote: timestamp("deadline_quote"),
+  deadlineDelivery: timestamp("deadline_delivery"),
+  deadlinePickup: timestamp("deadline_pickup"), // Apenas para MID
   createdAt: timestamp("created_at").defaultNow(),
 });
 

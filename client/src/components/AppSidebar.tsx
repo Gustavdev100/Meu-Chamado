@@ -28,7 +28,7 @@ export function AppSidebar() {
       icon: PlusCircle,
     },
     {
-      title: "Acompanhar",
+      title: "Meus Chamados",
       url: "/track",
       icon: Search,
     },
@@ -46,7 +46,7 @@ export function AppSidebar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
             <TicketCheck className="h-5 w-5" />
           </div>
-          <span className="font-display text-lg font-bold text-primary">HelpDesk</span>
+          <span className="font-display text-lg font-bold text-primary tracking-tight">Meu Chamado</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -61,7 +61,7 @@ export function AppSidebar() {
                     <SidebarMenuButton 
                       asChild 
                       data-active={isActive}
-                      className={isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-bold shadow-sm" : "text-muted-foreground font-medium"}
+                      className={isActive ? "bg-primary text-primary-foreground font-bold shadow-md" : "text-muted-foreground font-medium"}
                     >
                       <Link href={item.url} className="flex items-center gap-3">
                         <item.icon className="h-4 w-4" />

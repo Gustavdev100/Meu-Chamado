@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertTicketSchema, type InsertTicket } from "@shared/schema";
 import { useMutation } from "@tanstack/react-query";
@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Package, Trash2, HeadphonesIcon, Search } from "lucide-react";
+import { Loader2, Package, Trash2, HeadphonesIcon, Search, Plus, X } from "lucide-react";
 import { Link } from "wouter";
 
 const CITIES = {
@@ -33,7 +33,7 @@ export default function PublicSubmit() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const form = useForm<InsertTicket>({
+  const form = useForm<any>({
     resolver: zodResolver(insertTicketSchema),
     defaultValues: {
       type: "Chamados",
@@ -47,16 +47,28 @@ export default function PublicSubmit() {
       contactEmail: "",
       midLocation: "",
       midMaterialType: "",
-      itemQuantity: 1,
-      itemCategory: ""
+      itemCategory: "",
+      items: "", // Will be JSON stringified
+      tempItems: [""] // Local field for UI
     }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "tempItems"
   });
 
   const selectedCity = form.watch("city");
 
   const mutation = useMutation({
-    mutationFn: async (data: InsertTicket) => {
-      await apiRequest("POST", "/api/tickets", data);
+    mutationFn: async (data: any) => {
+      // Stringify items for DB
+      const processedData = {
+        ...data,
+        items: data.tempItems ? JSON.stringify(data.tempItems.filter(Boolean)) : null
+      };
+      delete processedData.tempItems;
+      await apiRequest("POST", "/api/tickets", processedData);
     },
     onSuccess: () => {
       toast({
@@ -80,15 +92,15 @@ export default function PublicSubmit() {
     return (
       <div className="container max-w-4xl py-12 px-4">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold tracking-tight text-primary mb-4">HelpDesk</h1>
-          <p className="text-xl text-muted-foreground">Escolha o tipo de solicitação para continuar</p>
+          <h1 className="text-4xl font-bold tracking-tight text-primary mb-4">Meu Chamado</h1>
+          <p className="text-xl text-muted-foreground italic">Powered by Vale S.A.</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {TICKET_TYPES.map((type) => (
             <Card 
               key={type.id} 
-              className="cursor-pointer hover:border-primary transition-all hover-elevate group"
+              className="cursor-pointer hover:border-primary transition-all hover-elevate group border-2"
               onClick={() => {
                 setSelectedType(type.id);
                 form.setValue("type", type.id);
@@ -108,9 +120,9 @@ export default function PublicSubmit() {
 
         <div className="flex justify-center">
           <Link href="/track">
-            <Button variant="outline" size="lg" className="gap-2">
+            <Button variant="outline" size="lg" className="gap-2 border-primary text-primary hover:bg-primary/5">
               <Search className="h-5 w-5" />
-              Acompanhar Solicitação
+              Acompanhar Minhas Solicitações
             </Button>
           </Link>
         </div>
@@ -122,13 +134,13 @@ export default function PublicSubmit() {
     <div className="container max-w-3xl py-12 px-4">
       <Button 
         variant="ghost" 
-        className="mb-6" 
+        className="mb-6 text-primary hover:text-primary/80" 
         onClick={() => setSelectedType(null)}
       >
         &larr; Voltar
       </Button>
 
-      <Card>
+      <Card className="border-t-4 border-t-primary">
         <CardHeader>
           <CardTitle>Nova Solicitação: {selectedType}</CardTitle>
           <CardDescription>Preencha os dados abaixo para abrir seu chamado.</CardDescription>
@@ -177,7 +189,7 @@ export default function PublicSubmit() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {selectedCity && CITIES[selectedCity as keyof typeof CITIES].map(base => (
+                          {selectedCity && (CITIES as any)[selectedCity].map((base: string) => (
                             <SelectItem key={base} value={base}>{base}</SelectItem>
                           ))}
                         </SelectContent>
@@ -218,29 +230,6 @@ export default function PublicSubmit() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Prioridade</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a prioridade" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="low">Baixa</SelectItem>
-                        <SelectItem value="medium">Média</SelectItem>
-                        <SelectItem value="high">Alta</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               {selectedType === "MID" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-primary/5 rounded-lg border border-primary/10">
                   <FormField
@@ -273,7 +262,7 @@ export default function PublicSubmit() {
               )}
 
               {selectedType === "Compras" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-primary/5 rounded-lg border border-primary/10">
+                <div className="space-y-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
                   <FormField
                     control={form.control}
                     name="itemCategory"
@@ -287,24 +276,42 @@ export default function PublicSubmit() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="itemQuantity"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Quantidade</FormLabel>
+                  
+                  <div className="space-y-2">
+                    <FormLabel>Itens (Até 6)</FormLabel>
+                    {fields.map((field, index) => (
+                      <div key={field.id} className="flex gap-2">
                         <FormControl>
                           <Input 
-                            type="number" 
-                            {...field} 
-                            value={field.value || 0}
-                            onChange={e => field.onChange(parseInt(e.target.value) || 0)} 
+                            placeholder={`Item ${index + 1}`} 
+                            {...form.register(`tempItems.${index}` as const)}
                           />
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                        {fields.length > 1 && (
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => remove(index)}
+                            className="text-destructive"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    {fields.length < 6 && (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => append("")}
+                        className="mt-2"
+                      >
+                        <Plus className="h-4 w-4 mr-2" /> Adicionar Item
+                      </Button>
                     )}
-                  />
+                  </div>
                 </div>
               )}
 
@@ -326,7 +333,7 @@ export default function PublicSubmit() {
                 )}
               />
 
-              <Button type="submit" className="w-full" disabled={mutation.isPending}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={mutation.isPending}>
                 {mutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
