@@ -1,15 +1,209 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fira+Code:wght@300..700&family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&family=Oxanium:wght@200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Chamado - Vale S.A.</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <span class="logo-text">Meu Chamado</span>
+                    <span class="logo-subtitle">Vale S.A.</span>
+                </div>
+                <div class="nav-menu" id="navMenu">
+                    <a href="#" data-page="submit" class="nav-link active">Enviar Solicitação</a>
+                    <a href="#" data-page="track" class="nav-link">Rastrear</a>
+                    <a href="#" data-page="admin" class="nav-link">Admin</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content Pages -->
+        <div class="pages-container">
+            <!-- PAGE: Enviar Solicitação -->
+            <div id="submit-page" class="page active">
+                <div class="hero-section">
+                    <h1>Meu Chamado</h1>
+                    <p>Canal Unificado de Solicitações Vale S.A.</p>
+                </div>
+
+                <div class="container">
+                    <!-- Type Selection -->
+                    <div id="typeSelection" class="type-selection">
+                        <h2>Selecione o Tipo de Solicitação</h2>
+                        <div class="type-grid">
+                            <div class="type-card" data-type="Compras">
+                                <div class="type-icon compras">📦</div>
+                                <h3>Compras</h3>
+                                <p>Solicitação de aquisição de materiais ou serviços.</p>
+                            </div>
+                            <div class="type-card" data-type="MID">
+                                <div class="type-icon mid">♻️</div>
+                                <h3>MID (Descarte)</h3>
+                                <p>Descarte de materiais ou resíduos que estão em algum lugar.</p>
+                            </div>
+                            <div class="type-card" data-type="Chamados">
+                                <div class="type-icon chamados">🎧</div>
+                                <h3>Chamados</h3>
+                                <p>Suporte técnico ou manutenção geral.</p>
+                            </div>
+                        </div>
+                        <div class="track-button">
+                            <a href="#" data-page="track" class="btn-outline">🔍 Acompanhar Minhas Solicitações</a>
+                        </div>
+                    </div>
+
+                    <!-- Form -->
+                    <div id="formContainer" class="form-container hidden">
+                        <button id="backBtn" class="btn-back">← Voltar para seleção</button>
+                        <div class="form-card">
+                            <div class="form-header">
+                                <div class="form-icon" id="formIcon">🎧</div>
+                                <div>
+                                    <h2 id="formTitle">Solicitação de Chamados</h2>
+                                    <p>Preencha as informações detalhadamente.</p>
+                                </div>
+                            </div>
+
+                            <form id="ticketForm" class="form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="city">Cidade *</label>
+                                        <select id="city" name="city" required>
+                                            <option value="">Selecione...</option>
+                                            <option value="São Luís">São Luís</option>
+                                            <option value="Bacabeira">Bacabeira</option>
+                                            <option value="Açailândia">Açailândia</option>
+                                            <option value="Santa Inês">Santa Inês</option>
+                                            <option value="Alto Alegre">Alto Alegre</option>
+                                            <option value="Vitória do Mearim">Vitória do Mearim</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="base">Base *</label>
+                                        <select id="base" name="base" required>
+                                            <option value="">Escolha a cidade</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="contactName">Nome do Solicitante *</label>
+                                        <input type="text" id="contactName" name="contactName" placeholder="Nome completo" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="contactEmail">E-mail de Contato *</label>
+                                        <input type="email" id="contactEmail" name="contactEmail" placeholder="nome@vale.com" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="priority">Urgência *</label>
+                                    <select id="priority" name="priority" required>
+                                        <option value="low">Baixa - Sem pressa</option>
+                                        <option value="medium" selected>Média - Necessário</option>
+                                        <option value="high">Alta - Urgente</option>
+                                    </select>
+                                </div>
+
+                                <!-- MID Fields -->
+                                <div id="midFields" class="form-section hidden">
+                                    <h3>Informações do Descarte</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="midLocation">Onde estão os materiais? *</label>
+                                            <input type="text" id="midLocation" name="midLocation" placeholder="Ex: Galpão B2">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="midMaterialType">Tipo de Resíduo *</label>
+                                            <input type="text" id="midMaterialType" name="midMaterialType" placeholder="Ex: Sucata ferrosa">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Compras Fields -->
+                                <div id="comprasFields" class="form-section hidden">
+                                    <h3>Informações de Compra</h3>
+                                    <div class="form-group">
+                                        <label for="itemCategory">Categoria da Compra *</label>
+                                        <input type="text" id="itemCategory" name="itemCategory" placeholder="Ex: EPIS, Ferramentas">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Lista de Itens (Máx. 6)</label>
+                                        <div id="itemsContainer">
+                                            <input type="text" class="item-input" placeholder="Descreva o item 1">
+                                        </div>
+                                        <button type="button" id="addItemBtn" class="btn-add-item">+ Adicionar Item</button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="description">Detalhes Adicionais</label>
+                                    <textarea id="description" name="description" placeholder="Forneça mais informações se necessário..." rows="6"></textarea>
+                                </div>
+
+                                <button type="submit" id="submitBtn" class="btn-submit">Enviar Agora</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Rastrear -->
+            <div id="track-page" class="page">
+                <div class="hero-section">
+                    <h1>Acompanhar Solicitação</h1>
+                    <p>Consulte o status em tempo real pelo seu e-mail corporativo.</p>
+                </div>
+
+                <div class="container">
+                    <div class="search-card">
+                        <form id="trackForm" class="search-form">
+                            <input type="email" id="trackEmail" placeholder="seu.nome@vale.com" required>
+                            <button type="submit" id="trackBtn" class="btn-primary">Consultar Chamados</button>
+                        </form>
+                    </div>
+
+                    <div id="ticketsResult" class="hidden"></div>
+                </div>
+            </div>
+
+            <!-- PAGE: Admin -->
+            <div id="admin-page" class="page">
+                <div class="hero-section">
+                    <h1>Painel Administrativo</h1>
+                    <p>Gerenciar solicitações e tratativas.</p>
+                </div>
+
+                <div class="container">
+                    <div id="adminLogin" class="admin-login">
+                        <div class="login-card">
+                            <h2>Acesso Restrito</h2>
+                            <form id="loginForm">
+                                <div class="form-group">
+                                    <label for="adminPassword">Senha de Acesso</label>
+                                    <input type="password" id="adminPassword" placeholder="Digite a senha" required>
+                                </div>
+                                <button type="submit" class="btn-primary">Entrar</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="adminPanel" class="admin-panel hidden">
+                        <button id="adminLogout" class="btn-logout">Sair</button>
+                        <div id="ticketsList" class="tickets-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/script.js"></script>
+</body>
 </html>

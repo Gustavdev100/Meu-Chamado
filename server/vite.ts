@@ -1,58 +1,29 @@
 import { type Express } from "express";
-import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
-import viteConfig from "../vite.config";
 import fs from "fs";
 import path from "path";
-import { nanoid } from "nanoid";
-
-const viteLogger = createLogger();
 
 export async function setupVite(server: Server, app: Express) {
-  const serverOptions = {
-    middlewareMode: true,
-    hmr: { server, path: "/vite-hmr" },
-    allowedHosts: true as const,
-  };
+  // Serve static files from client directory
+  const clientPath = path.resolve(import.meta.dirname, "..", "client");
+  
+  app.use("/", (req, res, next) => {
+    // Try to serve the requested file
+    let filePath = path.join(clientPath, req.path);
+    
+    // Handle .css and .js files
+    if (req.path.endsWith('.css') || req.path.endsWith('.js')) {
+      if (fs.existsSync(filePath)) {
+        return res.sendFile(filePath);
+      }
+    }
 
-  const vite = await createViteServer({
-    ...viteConfig,
-    configFile: false,
-    customLogger: {
-      ...viteLogger,
-      error: (msg, options) => {
-        viteLogger.error(msg, options);
-        process.exit(1);
-      },
-    },
-    server: serverOptions,
-    appType: "custom",
-  });
-
-  app.use(vite.middlewares);
-
-  app.use("/{*path}", async (req, res, next) => {
-    const url = req.originalUrl;
-
-    try {
-      const clientTemplate = path.resolve(
-        import.meta.dirname,
-        "..",
-        "client",
-        "index.html",
-      );
-
-      // always reload the index.html file from disk incase it changes
-      let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(
-        `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`,
-      );
-      const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
-    } catch (e) {
-      vite.ssrFixStacktrace(e as Error);
-      next(e);
+    // Default: serve index.html for all other routes (SPA fallback)
+    const indexPath = path.join(clientPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).send('File not found');
     }
   });
 }
