@@ -81,6 +81,12 @@ function selectType(type) {
     document.getElementById('midFields').classList.add('hidden');
     document.getElementById('comprasFields').classList.add('hidden');
     
+    // Reset buttons visibility
+    const addItemBtn = document.getElementById('addItemBtn');
+    const addMidItemBtn = document.getElementById('addMidItemBtn');
+    addItemBtn.style.display = 'block';
+    addMidItemBtn.style.display = 'block';
+    
     if (type === 'MID') {
         document.getElementById('midFields').classList.remove('hidden');
     } else if (type === 'Compras') {
@@ -89,6 +95,10 @@ function selectType(type) {
 
     // Reset form
     document.getElementById('ticketForm').reset();
+    
+    // Reset items containers
+    document.getElementById('itemsContainer').innerHTML = '<input type="text" class="item-input" placeholder="Descreva o item 1">';
+    document.getElementById('midItemsContainer').innerHTML = '<input type="text" class="mid-item-input" placeholder="Descreva o item 1">';
 }
 
 function setupFormHandlers() {
@@ -98,6 +108,7 @@ function setupFormHandlers() {
         document.getElementById('formContainer').classList.add('hidden');
     });
 
+    // Compras items
     const addItemBtn = document.getElementById('addItemBtn');
     addItemBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -110,6 +121,24 @@ function setupFormHandlers() {
             input.className = 'item-input';
             input.placeholder = `Descreva o item ${count + 1}`;
             container.appendChild(input);
+            if (count === 5) addItemBtn.style.display = 'none';
+        }
+    });
+
+    // MID items
+    const addMidItemBtn = document.getElementById('addMidItemBtn');
+    addMidItemBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const container = document.getElementById('midItemsContainer');
+        const count = container.querySelectorAll('.mid-item-input').length;
+        
+        if (count < 10) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'mid-item-input';
+            input.placeholder = `Descreva o item ${count + 1}`;
+            container.appendChild(input);
+            if (count === 9) addMidItemBtn.style.display = 'none';
         }
     });
 
@@ -150,9 +179,14 @@ async function submitTicket(e) {
         const formData = new FormData(document.getElementById('ticketForm'));
         const data = Object.fromEntries(formData);
 
-        // Collect items if Compras
+        // Collect items if Compras or MID
         if (currentType === 'Compras') {
             const items = Array.from(document.querySelectorAll('.item-input'))
+                .map(input => input.value.trim())
+                .filter(val => val);
+            data.items = JSON.stringify(items);
+        } else if (currentType === 'MID') {
+            const items = Array.from(document.querySelectorAll('.mid-item-input'))
                 .map(input => input.value.trim())
                 .filter(val => val);
             data.items = JSON.stringify(items);

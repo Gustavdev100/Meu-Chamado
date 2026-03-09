@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Chamado - Vale S.A.</title>
+    <title>HelpEmergência - Vale S.A.</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -121,9 +121,16 @@
                                             <input type="text" id="midLocation" name="midLocation" placeholder="Ex: Galpão B2">
                                         </div>
                                         <div class="form-group">
-                                            <label for="midMaterialType">Tipo de Resíduo *</label>
+                                            <label for="midMaterialType">Tipo Principal de Resíduo *</label>
                                             <input type="text" id="midMaterialType" name="midMaterialType" placeholder="Ex: Sucata ferrosa">
                                         </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Itens a Descartar (Máx. 10)</label>
+                                        <div id="midItemsContainer">
+                                            <input type="text" class="mid-item-input" placeholder="Descreva o item 1">
+                                        </div>
+                                        <button type="button" id="addMidItemBtn" class="btn-add-item">+ Adicionar Item</button>
                                     </div>
                                 </div>
 
