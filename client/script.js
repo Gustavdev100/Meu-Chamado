@@ -205,6 +205,15 @@ async function submitTicket(e) {
             return;
         }
 
+        // Gerar título automaticamente
+        const typeInfo = TYPE_INFO[currentType];
+        data.title = `${typeInfo.title} - ${data.contactName}`;
+        
+        // Usar descrição do form ou gerar uma default
+        if (!data.description || !data.description.trim()) {
+            data.description = `Solicitação de ${currentType} enviada pelo sistema`;
+        }
+
         // Validação específica por tipo
         if (currentType === 'MID') {
             if (!data.midLocation || !data.midLocation.trim()) {
