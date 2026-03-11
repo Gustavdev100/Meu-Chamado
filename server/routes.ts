@@ -11,10 +11,10 @@ log(`✅ Webhook ativo: Sincronizando com Google Sheets`, 'webhook');
 
 // Função para enviar dados ao Google Sheets via webhook
 async function syncToGoogleSheets(ticket: any) {
-  // ⚠️ WEBHOOK DESABILIDADO TEMPORARIAMENTE
-  // O sistema funciona 100% sem isso - dados salvam no PostgreSQL
-  // Para reativar: implante corretamente o Google Apps Script como Web App
-  log(`📝 Ticket #${ticket.id} salvo no PostgreSQL (Sheets offline)`, 'webhook');
+  // ⚠️ WEBHOOK DESABILITADO
+  // Apps Script não está respondendo (401). 
+  // O sistema funciona 100% sem isso - todos dados salvam no PostgreSQL.
+  // Sincronização manual disponível no painel Admin.
   return;
 }
 
@@ -82,6 +82,45 @@ export async function registerRoutes(
       res.status(204).send();
     } catch (err) {
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Nova rota para sincronização manual com Google Sheets
+  app.post('/api/sync-sheets', async (req, res) => {
+    try {
+      const { password } = req.body;
+      if (password !== 'admin123') {
+        return res.status(401).json({ message: 'Não autorizado' });
+      }
+
+      const tickets = await storage.getTickets();
+      let synced = 0;
+      let failed = 0;
+
+      for (const ticket of tickets) {
+        try {
+          const response = await fetch(SHEETS_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'addTicket',
+              ticket: ticket
+            })
+          });
+
+          if (response.ok) {
+            synced++;
+          } else {
+            failed++;
+          }
+        } catch (error) {
+          failed++;
+        }
+      }
+
+      res.json({ message: `Sincronização concluída: ${synced} ok, ${failed} erros`, synced, failed });
+    } catch (error) {
+      res.status(500).json({ message: 'Erro ao sincronizar' });
     }
   });
 

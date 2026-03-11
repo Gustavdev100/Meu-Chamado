@@ -456,6 +456,29 @@ function setupAdminHandlers() {
         document.getElementById('adminPanel').classList.add('hidden');
         document.getElementById('loginForm').reset();
     });
+
+    // Sync with Google Sheets button
+    const syncBtn = document.getElementById('syncSheetsBtn');
+    if (syncBtn) {
+        syncBtn.addEventListener('click', async () => {
+            syncBtn.disabled = true;
+            syncBtn.textContent = '⏳ Sincronizando...';
+            try {
+                const response = await fetch(`${API_BASE}/sync-sheets`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: adminPassword })
+                });
+                const data = await response.json();
+                showToast(data.message, response.ok ? 'success' : 'error');
+            } catch (error) {
+                showToast('Erro ao sincronizar: ' + error.message, 'error');
+            } finally {
+                syncBtn.disabled = false;
+                syncBtn.textContent = '📊 Sincronizar com Google Sheets';
+            }
+        });
+    }
 }
 
 async function loadAdminTickets() {
