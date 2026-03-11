@@ -1,5 +1,6 @@
 // Configuration
 const API_BASE = '/api';
+const GOOGLE_SHEETS_ID = '1Rf-1Se4wTUry4Nu7cZJKSyw6j8rU21FysafSiwWVNYA';
 const CITIES = {
     "São Luís": ["Base Porto", "Base Ferrovia", "Base Núcleo"],
     "Bacabeira": ["Base Bacabeira"],

@@ -6,8 +6,8 @@ import { z } from "zod";
 import { log } from "./index";
 
 // Google Apps Script Webhook URL
-const SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyL2aHfHDljF-hwjddCXMh86EITzRO5yJgfihqRKTfY/usercripts';
-log(`✅ Webhook ativo: Google Sheets sincronizando`, 'webhook');
+const SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbx2UE8Z2Qn4bXpiab8E0lWp3uxrd6BK2pIv4AjlJnZZqxdMiqK8A3e0AeMwZfk4Acuw/exec';
+log(`✅ Webhook ativo: Sincronizando com Google Sheets`, 'webhook');
 
 // Função para enviar dados ao Google Sheets via webhook
 async function syncToGoogleSheets(ticket: any) {
