@@ -179,16 +179,40 @@ async function submitTicket(e) {
         const formData = new FormData(document.getElementById('ticketForm'));
         const data = Object.fromEntries(formData);
 
-        // Collect items if Compras or MID
-        if (currentType === 'Compras') {
-            const items = Array.from(document.querySelectorAll('.item-input'))
-                .map(input => input.value.trim())
-                .filter(val => val);
-            data.items = JSON.stringify(items);
-        } else if (currentType === 'MID') {
+        // Validação específica por tipo
+        if (currentType === 'MID') {
+            if (!data.midLocation || !data.midLocation.trim()) {
+                showToast('Preencha: Onde estão os materiais?', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Agora';
+                return;
+            }
+            if (!data.midMaterialType || !data.midMaterialType.trim()) {
+                showToast('Preencha: Tipo Principal de Resíduo', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Agora';
+                return;
+            }
             const items = Array.from(document.querySelectorAll('.mid-item-input'))
                 .map(input => input.value.trim())
                 .filter(val => val);
+            data.items = JSON.stringify(items);
+        } else if (currentType === 'Compras') {
+            if (!data.itemCategory || !data.itemCategory.trim()) {
+                showToast('Preencha: Categoria da Compra', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Agora';
+                return;
+            }
+            const items = Array.from(document.querySelectorAll('.item-input'))
+                .map(input => input.value.trim())
+                .filter(val => val);
+            if (items.length === 0) {
+                showToast('Adicione pelo menos 1 item à lista de compra', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Agora';
+                return;
+            }
             data.items = JSON.stringify(items);
         }
 
