@@ -179,6 +179,32 @@ async function submitTicket(e) {
         const formData = new FormData(document.getElementById('ticketForm'));
         const data = Object.fromEntries(formData);
 
+        // Validação de campos obrigatórios gerais
+        if (!data.city || !data.city.trim()) {
+            showToast('Selecione a Cidade', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar Agora';
+            return;
+        }
+        if (!data.base || !data.base.trim()) {
+            showToast('Selecione a Base', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar Agora';
+            return;
+        }
+        if (!data.contactName || !data.contactName.trim()) {
+            showToast('Preencha o Nome do Solicitante', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar Agora';
+            return;
+        }
+        if (!data.contactEmail || !data.contactEmail.trim()) {
+            showToast('Preencha o E-mail de Contato', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar Agora';
+            return;
+        }
+
         // Validação específica por tipo
         if (currentType === 'MID') {
             if (!data.midLocation || !data.midLocation.trim()) {
