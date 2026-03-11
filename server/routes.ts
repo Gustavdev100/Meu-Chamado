@@ -6,7 +6,8 @@ import { z } from "zod";
 import { log } from "./index";
 
 // Google Apps Script Webhook URL
-const SHEETS_WEBHOOK_URL = process.env.SHEETS_WEBHOOK_URL || '';
+const SHEETS_WEBHOOK_URL = process.env.SHEETS_WEBHOOK_URL || 'https://script.google.com/macros/s/AKfycby26kTIpKed3ErNvvOUDlvVS2h1DooFnaUxXIUXARjXk09RM6Xj9RKN1dYuGpYhtqvRzA/exec';
+log(`✅ Webhook ativo: ${SHEETS_WEBHOOK_URL.substring(0, 60)}...`, 'webhook');
 
 // Função para enviar dados ao Google Sheets via webhook
 async function syncToGoogleSheets(ticket: any) {

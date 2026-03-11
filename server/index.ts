@@ -1,7 +1,26 @@
+import fs from "fs";
+import path from "path";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+
+// Carregar .env.local
+const envFilePath = path.join(process.cwd(), ".env.local");
+if (fs.existsSync(envFilePath)) {
+  const envContent = fs.readFileSync(envFilePath, "utf-8");
+  const lines = envContent.split("\n");
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith("#")) {
+      const [key, ...valueParts] = trimmed.split("=");
+      const value = valueParts.join("=");
+      if (key && !process.env[key]) {
+        process.env[key] = value;
+      }
+    }
+  }
+}
 
 const app = express();
 const httpServer = createServer(app);
