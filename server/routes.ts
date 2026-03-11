@@ -11,33 +11,11 @@ log(`✅ Webhook ativo: Sincronizando com Google Sheets`, 'webhook');
 
 // Função para enviar dados ao Google Sheets via webhook
 async function syncToGoogleSheets(ticket: any) {
-  if (!SHEETS_WEBHOOK_URL) {
-    log('⚠️ SHEETS_WEBHOOK_URL não configurada - pulando sincronização', 'webhook');
-    return;
-  }
-
-  try {
-    const options = {
-      method: 'POST' as const,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'addTicket',
-        ticket: ticket,
-        timestamp: new Date().toISOString()
-      })
-    };
-
-    const response = await fetch(SHEETS_WEBHOOK_URL, options);
-    if (response.ok) {
-      log(`✅ Ticket #${ticket.id} sincronizado com Google Sheets`, 'webhook');
-    } else {
-      log(`⚠️ Erro ao sincronizar com Sheets (${response.status}): ${await response.text()}`, 'webhook');
-    }
-  } catch (error) {
-    log(`❌ Erro ao conectar com Google Sheets: ${error}`, 'webhook');
-  }
+  // ⚠️ WEBHOOK DESABILIDADO TEMPORARIAMENTE
+  // O sistema funciona 100% sem isso - dados salvam no PostgreSQL
+  // Para reativar: implante corretamente o Google Apps Script como Web App
+  log(`📝 Ticket #${ticket.id} salvo no PostgreSQL (Sheets offline)`, 'webhook');
+  return;
 }
 
 export async function registerRoutes(
