@@ -3,6 +3,41 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
+import { log } from "./index";
+
+// Google Apps Script Webhook URL
+const SHEETS_WEBHOOK_URL = process.env.SHEETS_WEBHOOK_URL || '';
+
+// Função para enviar dados ao Google Sheets via webhook
+async function syncToGoogleSheets(ticket: any) {
+  if (!SHEETS_WEBHOOK_URL) {
+    log('⚠️ SHEETS_WEBHOOK_URL não configurada - pulando sincronização', 'webhook');
+    return;
+  }
+
+  try {
+    const options = {
+      method: 'POST' as const,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'addTicket',
+        ticket: ticket,
+        timestamp: new Date().toISOString()
+      })
+    };
+
+    const response = await fetch(SHEETS_WEBHOOK_URL, options);
+    if (response.ok) {
+      log(`✅ Ticket #${ticket.id} sincronizado com Google Sheets`, 'webhook');
+    } else {
+      log(`⚠️ Erro ao sincronizar com Sheets (${response.status}): ${await response.text()}`, 'webhook');
+    }
+  } catch (error) {
+    log(`❌ Erro ao conectar com Google Sheets: ${error}`, 'webhook');
+  }
+}
 
 export async function registerRoutes(
   httpServer: Server,
@@ -25,6 +60,12 @@ export async function registerRoutes(
     try {
       const input = api.tickets.create.input.parse(req.body);
       const ticket = await storage.createTicket(input);
+      
+      // Sincronizar com Google Sheets (assincronamente)
+      syncToGoogleSheets(ticket).catch(err => 
+        log(`Erro na sincronização: ${err}`, 'webhook')
+      );
+      
       res.status(201).json(ticket);
     } catch (err) {
       if (err instanceof z.ZodError) {
