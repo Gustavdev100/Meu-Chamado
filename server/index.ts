@@ -106,14 +106,30 @@ app.use((req, res, next) => {
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || "5000", 10);
-  httpServer.listen(
-    port,
-    "0.0.0.0",
-    () => {
-      log(`serving on port ${port}`);
-    },
-  );
+  if (process.env.NODE_ENV !== "production") {
+    const port = parseInt(process.env.PORT || "5000", 10);
+    httpServer.listen(
+      port,
+      "0.0.0.0",
+      () => {
+        log(`serving on port ${port}`);
+      },
+    );
+  } else {
+    // In production (Vercel/Cloud), we might still want to start if not imported
+    // but Vercel specifically looks for the export.
+    const port = process.env.PORT || "5000";
+    httpServer.listen(port, () => {
+      log(`Production server listening on ${port}`);
+    });
+  }
 })();
+
+export default app;
+// Compatibility with Vercel and some CJS loaders
+if (typeof module !== 'undefined') {
+  module.exports = app;
+  module.exports.default = app;
+}
+
