@@ -4,15 +4,16 @@ import path from "path";
 
 export function serveStatic(app: Express) {
   const distPath = path.resolve(process.cwd(), "dist", "public");
+
   if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
+    // On Vercel, static files are served by the CDN, so we don't need to throw.
+    // This prevents the Lambda from crashing during initialization.
+    console.log(`Static path ${distPath} not found. Assuming Vercel is handling static assets via rewrites.`);
+    return;
   }
 
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
   app.get("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });

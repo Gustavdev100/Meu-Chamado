@@ -104,25 +104,15 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // It is the only port that is not firewalled.
-  if (process.env.NODE_ENV !== "production") {
+  // On Vercel, we do NOT call listen(). The environment handles the binding.
+  // We only listen for local development or traditional VPS deployments.
+  if (process.env.VERCEL !== '1') {
     const port = parseInt(process.env.PORT || "5000", 10);
-    httpServer.listen(
-      port,
-      "0.0.0.0",
-      () => {
-        log(`serving on port ${port}`);
-      },
-    );
-  } else {
-    // In production (Vercel/Cloud), we might still want to start if not imported
-    // but Vercel specifically looks for the export.
-    const port = process.env.PORT || "5000";
-    httpServer.listen(port, () => {
-      log(`Production server listening on ${port}`);
+    httpServer.listen(port, "0.0.0.0", () => {
+      log(`serving on port ${port}`);
     });
+  } else {
+    log('Server initialized for Vercel (Serverless Mode)');
   }
 })();
 
