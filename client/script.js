@@ -1,6 +1,5 @@
-// Configuration
+// Configuration & Globals
 const API_BASE = '/api';
-const GOOGLE_SHEETS_ID = '1Rf-1Se4wTUry4Nu7cZJKSyw6j8rU21FysafSiwWVNYA';
 const CITIES = {
     "São Luís": ["Base Porto", "Base Ferrovia", "Base Núcleo"],
     "Bacabeira": ["Base Bacabeira"],
@@ -18,7 +17,10 @@ const TYPE_INFO = {
 
 let currentType = null;
 let adminAuthenticated = false;
-const adminPassword = "admin123";
+const ADMIN_PASS = "admin123";
+let allTickets = [];
+let filteredTickets = [];
+let currentFilter = 'all';
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -28,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTrackingHandlers();
     setupAdminHandlers();
     setupCityBaseSync();
+    setupModalHandlers();
 });
 
 // Navigation
@@ -39,7 +42,6 @@ function setupNavigation() {
             const page = link.dataset.page;
             switchPage(page);
             
-            // Update active nav link
             navLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
         });
@@ -51,7 +53,6 @@ function switchPage(pageId) {
     pages.forEach(page => page.classList.remove('active'));
     document.getElementById(pageId + '-page').classList.add('active');
 
-    // Reset form when switching pages
     if (pageId === 'submit') {
         document.getElementById('typeSelection').classList.remove('hidden');
         document.getElementById('formContainer').classList.add('hidden');
@@ -78,15 +79,8 @@ function selectType(type) {
     document.getElementById('formIcon').textContent = info.icon;
     document.getElementById('formTitle').textContent = info.title;
     
-    // Show/hide conditional fields
     document.getElementById('midFields').classList.add('hidden');
     document.getElementById('comprasFields').classList.add('hidden');
-    
-    // Reset buttons visibility
-    const addItemBtn = document.getElementById('addItemBtn');
-    const addMidItemBtn = document.getElementById('addMidItemBtn');
-    addItemBtn.style.display = 'block';
-    addMidItemBtn.style.display = 'block';
     
     if (type === 'MID') {
         document.getElementById('midFields').classList.remove('hidden');
@@ -94,57 +88,44 @@ function selectType(type) {
         document.getElementById('comprasFields').classList.remove('hidden');
     }
 
-    // Reset form
     document.getElementById('ticketForm').reset();
-    
-    // Reset items containers
-    document.getElementById('itemsContainer').innerHTML = '<input type="text" class="item-input" placeholder="Descreva o item 1">';
-    document.getElementById('midItemsContainer').innerHTML = '<input type="text" class="mid-item-input" placeholder="Descreva o item 1">';
+    document.getElementById('itemsContainer').innerHTML = '<input type="text" class="item-input" placeholder="Item 1">';
+    document.getElementById('midItemsContainer').innerHTML = '<input type="text" class="mid-item-input" placeholder="Item 1">';
 }
 
 function setupFormHandlers() {
-    const backBtn = document.getElementById('backBtn');
-    backBtn.addEventListener('click', () => {
+    document.getElementById('backBtn').addEventListener('click', () => {
         document.getElementById('typeSelection').classList.remove('hidden');
         document.getElementById('formContainer').classList.add('hidden');
     });
 
-    // Compras items
-    const addItemBtn = document.getElementById('addItemBtn');
-    addItemBtn.addEventListener('click', (e) => {
+    document.getElementById('addItemBtn').addEventListener('click', (e) => {
         e.preventDefault();
         const container = document.getElementById('itemsContainer');
         const count = container.querySelectorAll('.item-input').length;
-        
         if (count < 6) {
             const input = document.createElement('input');
             input.type = 'text';
             input.className = 'item-input';
-            input.placeholder = `Descreva o item ${count + 1}`;
+            input.placeholder = `Item ${count + 1}`;
             container.appendChild(input);
-            if (count === 5) addItemBtn.style.display = 'none';
         }
     });
 
-    // MID items
-    const addMidItemBtn = document.getElementById('addMidItemBtn');
-    addMidItemBtn.addEventListener('click', (e) => {
+    document.getElementById('addMidItemBtn').addEventListener('click', (e) => {
         e.preventDefault();
         const container = document.getElementById('midItemsContainer');
         const count = container.querySelectorAll('.mid-item-input').length;
-        
         if (count < 10) {
             const input = document.createElement('input');
             input.type = 'text';
             input.className = 'mid-item-input';
-            input.placeholder = `Descreva o item ${count + 1}`;
+            input.placeholder = `Item ${count + 1}`;
             container.appendChild(input);
-            if (count === 9) addMidItemBtn.style.display = 'none';
         }
     });
 
-    const form = document.getElementById('ticketForm');
-    form.addEventListener('submit', submitTicket);
+    document.getElementById('ticketForm').addEventListener('submit', submitTicket);
 }
 
 function setupCityBaseSync() {
@@ -154,7 +135,6 @@ function setupCityBaseSync() {
     citySelect.addEventListener('change', () => {
         const city = citySelect.value;
         baseSelect.innerHTML = '<option value="">Selecione...</option>';
-        
         if (city && CITIES[city]) {
             CITIES[city].forEach(base => {
                 const option = document.createElement('option');
@@ -171,90 +151,29 @@ function setupCityBaseSync() {
 
 async function submitTicket(e) {
     e.preventDefault();
-    
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Enviando...';
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
 
     try {
-        const formData = new FormData(document.getElementById('ticketForm'));
+        const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
 
-        // Validação de campos obrigatórios gerais
-        if (!data.city || !data.city.trim()) {
-            showToast('Selecione a Cidade', 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Enviar Agora';
-            return;
-        }
-        if (!data.base || !data.base.trim()) {
-            showToast('Selecione a Base', 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Enviar Agora';
-            return;
-        }
-        if (!data.contactName || !data.contactName.trim()) {
-            showToast('Preencha o Nome do Solicitante', 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Enviar Agora';
-            return;
-        }
-        if (!data.contactEmail || !data.contactEmail.trim()) {
-            showToast('Preencha o E-mail de Contato', 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Enviar Agora';
-            return;
+        if (!data.city || !data.contactName || !data.contactEmail) {
+            throw new Error('Preencha os campos obrigatórios (*)');
         }
 
-        // Gerar título automaticamente
-        const typeInfo = TYPE_INFO[currentType];
-        data.title = `${typeInfo.title} - ${data.contactName}`;
-        
-        // Usar descrição do form ou gerar uma default
-        if (!data.description || !data.description.trim()) {
-            data.description = `Solicitação de ${currentType} enviada pelo sistema`;
-        }
-
-        // Validação específica por tipo
-        if (currentType === 'MID') {
-            if (!data.midLocation || !data.midLocation.trim()) {
-                showToast('Preencha: Onde estão os materiais?', 'error');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar Agora';
-                return;
-            }
-            if (!data.midMaterialType || !data.midMaterialType.trim()) {
-                showToast('Preencha: Tipo Principal de Resíduo', 'error');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar Agora';
-                return;
-            }
-            const items = Array.from(document.querySelectorAll('.mid-item-input'))
-                .map(input => input.value.trim())
-                .filter(val => val);
-            data.items = JSON.stringify(items);
-        } else if (currentType === 'Compras') {
-            if (!data.itemCategory || !data.itemCategory.trim()) {
-                showToast('Preencha: Categoria da Compra', 'error');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar Agora';
-                return;
-            }
-            const items = Array.from(document.querySelectorAll('.item-input'))
-                .map(input => input.value.trim())
-                .filter(val => val);
-            if (items.length === 0) {
-                showToast('Adicione pelo menos 1 item à lista de compra', 'error');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar Agora';
-                return;
-            }
-            data.items = JSON.stringify(items);
-        }
-
-        // Add type
+        data.title = `${TYPE_INFO[currentType].title} - CN - ${data.contactName}`;
         data.type = currentType;
         data.status = 'open';
+
+        if (currentType === 'MID') {
+            const items = Array.from(document.querySelectorAll('.mid-item-input')).map(i => i.value.trim()).filter(v => v);
+            data.items = JSON.stringify(items);
+        } else if (currentType === 'Compras') {
+            const items = Array.from(document.querySelectorAll('.item-input')).map(i => i.value.trim()).filter(v => v);
+            data.items = JSON.stringify(items);
+        }
 
         const response = await fetch(`${API_BASE}/tickets`, {
             method: 'POST',
@@ -262,328 +181,330 @@ async function submitTicket(e) {
             body: JSON.stringify(data)
         });
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Erro ao enviar solicitação');
-        }
+        if (!response.ok) throw new Error('Falha ao registrar chamado');
 
-        const ticket = await response.json();
-        showToast('Solicitação enviada com sucesso!', 'success');
-        
-        // Reset and show type selection
-        document.getElementById('ticketForm').reset();
-        document.getElementById('typeSelection').classList.remove('hidden');
-        document.getElementById('formContainer').classList.add('hidden');
-        currentType = null;
-
-    } catch (error) {
-        showToast(error.message, 'error');
+        showToast('Chamado registrado com sucesso!', 'success');
+        e.target.reset();
+        switchPage('submit');
+    } catch (err) {
+        showToast(err.message, 'error');
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Enviar Agora';
+        btn.disabled = false;
+        btn.textContent = 'Enviar Solicitação';
     }
 }
 
 // Tracking
 function setupTrackingHandlers() {
-    const trackForm = document.getElementById('trackForm');
-    trackForm.addEventListener('submit', async (e) => {
+    document.getElementById('trackForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('trackEmail').value;
-        await searchTickets(email);
+        const btn = document.getElementById('trackBtn');
+        btn.disabled = true;
+        
+        try {
+            const res = await fetch(`${API_BASE}/tickets`);
+            const tickets = await res.json();
+            const filtered = tickets.filter(t => t.contactEmail.toLowerCase() === email.toLowerCase());
+            renderTrackingResults(filtered);
+        } catch (err) {
+            showToast('Erro ao buscar chamados', 'error');
+        } finally {
+            btn.disabled = false;
+        }
     });
 }
 
-async function searchTickets(email) {
-    const trackBtn = document.getElementById('trackBtn');
-    trackBtn.disabled = true;
-    trackBtn.textContent = 'Carregando...';
+function renderTrackingResults(tickets) {
+    const container = document.getElementById('ticketsResult');
+    container.innerHTML = '';
     
-    const resultDiv = document.getElementById('ticketsResult');
-    resultDiv.classList.remove('hidden');
-    resultDiv.innerHTML = '';
-
-    try {
-        const response = await fetch(`${API_BASE}/tickets`);
-        if (!response.ok) throw new Error('Erro ao buscar solicitações');
-
-        const allTickets = await response.json();
-        const userTickets = allTickets.filter(t => 
-            t.contactEmail.toLowerCase() === email.toLowerCase()
-        );
-
-        if (userTickets.length === 0) {
-            resultDiv.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">📭</div>
-                    <h3>Nenhuma solicitação encontrada</h3>
-                    <p>Verifique se o e-mail <strong>${email}</strong> está correto.</p>
-                </div>
-            `;
-        } else {
-            resultDiv.classList.add('tickets-result');
-            userTickets.forEach(ticket => {
-                resultDiv.appendChild(createTicketCard(ticket, false));
-            });
-        }
-    } catch (error) {
-        showToast(error.message, 'error');
-    } finally {
-        trackBtn.disabled = false;
-        trackBtn.textContent = 'Consultar Chamados';
-    }
-}
-
-function createTicketCard(ticket, isAdmin = false) {
-    const card = document.createElement('div');
-    card.className = 'ticket-card';
-    
-    const statusClass = `status-${ticket.status}`;
-    const createdAt = ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString('pt-BR') : '-';
-    
-    let itemsHtml = '';
-    if (ticket.items) {
-        try {
-            const items = JSON.parse(ticket.items);
-            itemsHtml = `
-                <div class="ticket-section">
-                    <h4>Itens Solicitados</h4>
-                    <div class="items-list">
-                        ${items.map((item, i) => `<div class="item-badge">${i + 1}. ${item}</div>`).join('')}
-                    </div>
-                </div>
-            `;
-        } catch (e) {}
+    if (tickets.length === 0) {
+        container.innerHTML = `<div class="glass-card" style="padding: 3rem; text-align: center;"><h3>Nenhum chamado encontrado</h3></div>`;
+        return;
     }
 
-    card.innerHTML = `
-        <div class="ticket-header">
-            <div class="ticket-info">
-                <div>
-                    <span class="ticket-type">${ticket.type}</span>
-                    <span class="ticket-id">#${String(ticket.id).padStart(6, '0')}</span>
-                </div>
-                <div class="ticket-title">${ticket.title}</div>
-            </div>
-            <div>
-                <span class="ticket-status ${statusClass}">${ticket.status.replace('_', ' ')}</span>
-                <div style="font-size: 0.85rem; color: #999; margin-top: 0.5rem;">Criado: ${createdAt}</div>
-            </div>
-        </div>
-
-        <div class="ticket-content">
-            <div class="ticket-section">
-                <h4>📍 Localização</h4>
-                <div class="ticket-details">
-                    <div class="detail-row">
-                        <span class="detail-label">Cidade:</span>
-                        <span class="detail-value">${ticket.city}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Base:</span>
-                        <span class="detail-value">${ticket.base}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="ticket-section">
-                <h4>📋 Prazos</h4>
-                <div class="ticket-details">
-                    ${ticket.type !== 'MID' ? `
-                        <div class="detail-row">
-                            <span class="detail-label">Visita:</span>
-                            <span class="detail-value">${ticket.deadlineVisit ? new Date(ticket.deadlineVisit).toLocaleDateString('pt-BR') : 'Aguardando'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Orçamento:</span>
-                            <span class="detail-value">${ticket.deadlineQuote ? new Date(ticket.deadlineQuote).toLocaleDateString('pt-BR') : 'Aguardando'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Entrega:</span>
-                            <span class="detail-value">${ticket.deadlineDelivery ? new Date(ticket.deadlineDelivery).toLocaleDateString('pt-BR') : 'Aguardando'}</span>
-                        </div>
-                    ` : `
-                        <div class="detail-row">
-                            <span class="detail-label">Busca:</span>
-                            <span class="detail-value">${ticket.deadlinePickup ? new Date(ticket.deadlinePickup).toLocaleDateString('pt-BR') : 'Aguardando'}</span>
-                        </div>
-                    `}
-                </div>
-            </div>
-        </div>
-
-        ${itemsHtml}
-
-        <div class="ticket-section">
-            <h4>📝 Tratativa Interna</h4>
-            <div class="observations">
-                ${ticket.adminObservations || 'Sua solicitação está sendo analisada pela nossa equipe. Em breve você receberá atualizações aqui.'}
-            </div>
-            ${ticket.adminPhotoUrl ? `<div style="margin-top: 1rem;"><a href="${ticket.adminPhotoUrl}" target="_blank" rel="noreferrer" class="btn-primary">📷 Ver anexo</a></div>` : ''}
-        </div>
-
-        ${isAdmin ? `
-            <div id="edit-form-${ticket.id}" class="hidden">
-                <!-- Admin edit form will be added here -->
-            </div>
-        ` : ''}
-    `;
-
-    return card;
-}
-
-// Admin
-function setupAdminHandlers() {
-    const loginForm = document.getElementById('loginForm');
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const password = document.getElementById('adminPassword').value;
+    tickets.reverse().forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'glass-card ticket-card-track';
+        card.style.padding = '2rem';
+        card.style.marginBottom = '1.5rem';
         
-        if (password === adminPassword) {
+        const statusMap = { 'open': 'Pendente', 'in_progress': 'Em Tratativa', 'resolved': 'Resolvido', 'closed': 'Fechado' };
+        const statusLabel = statusMap[t.status] || t.status;
+
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <span class="badge badge-${t.status}">${statusLabel}</span>
+                <span style="color: var(--text-muted); font-size: 0.8rem;">#${String(t.id).padStart(6, '0')}</span>
+            </div>
+            <h4 style="margin-bottom: 0.5rem; color: var(--primary);">${t.title}</h4>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">${t.description}</p>
+            <div style="background: var(--bg-main); padding: 1rem; border-radius: 8px; font-size: 0.85rem;">
+                <strong>Última atualização:</strong><br>
+                ${t.adminObservations || 'Aguardando primeira análise técnica.'}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// ADMIN DASHBOARD
+function setupAdminHandlers() {
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (document.getElementById('adminPassword').value === ADMIN_PASS) {
             adminAuthenticated = true;
             document.getElementById('adminLogin').classList.add('hidden');
             document.getElementById('adminPanel').classList.remove('hidden');
-            loadAdminTickets();
+            loadAdminData();
         } else {
-            showToast('Senha incorreta', 'error');
+            showToast('Acesso negado', 'error');
         }
     });
 
-    const logoutBtn = document.getElementById('adminLogout');
-    logoutBtn.addEventListener('click', () => {
+    document.getElementById('adminLogout').addEventListener('click', () => {
         adminAuthenticated = false;
         document.getElementById('adminLogin').classList.remove('hidden');
         document.getElementById('adminPanel').classList.add('hidden');
-        document.getElementById('loginForm').reset();
     });
 
-    // Sync with Google Sheets button
-    const syncBtn = document.getElementById('syncSheetsBtn');
-    if (syncBtn) {
-        syncBtn.addEventListener('click', async () => {
-            syncBtn.disabled = true;
-            syncBtn.textContent = '⏳ Sincronizando...';
-            try {
-                const response = await fetch(`${API_BASE}/sync-sheets`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: adminPassword })
-                });
-                const data = await response.json();
-                showToast(data.message, response.ok ? 'success' : 'error');
-            } catch (error) {
-                showToast('Erro ao sincronizar: ' + error.message, 'error');
-            } finally {
-                syncBtn.disabled = false;
-                syncBtn.textContent = '📊 Sincronizar com Google Sheets';
-            }
+    document.getElementById('adminSearch').addEventListener('input', (e) => {
+        filterAdminTickets(e.target.value);
+    });
+
+    // Stat card filtering
+    document.querySelectorAll('.stat-card').forEach(card => {
+        card.addEventListener('click', () => {
+            currentFilter = card.dataset.filter;
+            filterAdminTickets(document.getElementById('adminSearch').value);
+            
+            document.querySelectorAll('.stat-card').forEach(c => c.style.borderColor = 'var(--border)');
+            card.style.borderColor = 'var(--primary)';
         });
-    }
+    });
+
+    document.getElementById('syncSheetsBtn').addEventListener('click', syncSheets);
 }
 
-async function loadAdminTickets() {
+async function loadAdminData() {
     try {
-        const response = await fetch(`${API_BASE}/tickets`);
-        if (!response.ok) throw new Error('Erro ao buscar solicitações');
-
-        const tickets = await response.json();
-        const container = document.getElementById('ticketsList');
-        container.innerHTML = '';
-
-        tickets.forEach(ticket => {
-            const card = createTicketCard(ticket, true);
-            
-            // Add edit form
-            const editForm = document.createElement('div');
-            editForm.className = 'edit-form';
-            editForm.innerHTML = `
-                <h3>Editar #${String(ticket.id).padStart(6, '0')}</h3>
-                <div class="edit-section">
-                    <label>Observações:</label>
-                    <textarea id="obs-${ticket.id}">${ticket.adminObservations || ''}</textarea>
-                </div>
-                <div class="edit-section">
-                    <label>URL da Foto:</label>
-                    <input type="url" id="photo-${ticket.id}" value="${ticket.adminPhotoUrl || ''}">
-                </div>
-                ${ticket.type !== 'MID' ? `
-                    <div class="edit-section">
-                        <label>Prazo Visita Técnica:</label>
-                        <input type="datetime-local" id="visit-${ticket.id}" value="${formatDateTimeLocal(ticket.deadlineVisit)}">
-                    </div>
-                    <div class="edit-section">
-                        <label>Prazo Orçamento:</label>
-                        <input type="datetime-local" id="quote-${ticket.id}" value="${formatDateTimeLocal(ticket.deadlineQuote)}">
-                    </div>
-                    <div class="edit-section">
-                        <label>Prazo Entrega:</label>
-                        <input type="datetime-local" id="delivery-${ticket.id}" value="${formatDateTimeLocal(ticket.deadlineDelivery)}">
-                    </div>
-                ` : `
-                    <div class="edit-section">
-                        <label>Prazo Busca:</label>
-                        <input type="datetime-local" id="pickup-${ticket.id}" value="${formatDateTimeLocal(ticket.deadlinePickup)}">
-                    </div>
-                `}
-                <button type="button" class="btn-save" onclick="saveTicket(${ticket.id})">Salvar Alterações</button>
-            `;
-            
-            container.appendChild(card);
-            container.appendChild(editForm);
-        });
-    } catch (error) {
-        showToast(error.message, 'error');
+        const res = await fetch(`${API_BASE}/tickets`);
+        allTickets = await res.json();
+        updateAdminView();
+    } catch (err) {
+        showToast('Erro ao carregar dados', 'error');
     }
 }
 
-function formatDateTimeLocal(date) {
+function updateAdminView() {
+    const tickets = allTickets.sort((a,b) => b.id - a.id);
+    
+    // Update Stats
+    document.getElementById('stat-total').textContent = tickets.length;
+    document.getElementById('stat-open').textContent = tickets.filter(t => t.status === 'open').length;
+    document.getElementById('stat-progress').textContent = tickets.filter(t => t.status === 'in_progress').length;
+    document.getElementById('stat-resolved').textContent = tickets.filter(t => t.status === 'resolved').length;
+
+    filterAdminTickets(document.getElementById('adminSearch').value);
+}
+
+function filterAdminTickets(query) {
+    let filtered = allTickets;
+    
+    // Status Filter
+    if (currentFilter !== 'all') {
+        filtered = filtered.filter(t => t.status === (currentFilter === 'progress' ? 'in_progress' : (currentFilter === 'resolved' ? 'resolved' : 'open')));
+    }
+
+    // Search Query
+    if (query) {
+        const q = query.toLowerCase();
+        filtered = filtered.filter(t => 
+            t.contactName.toLowerCase().includes(q) || 
+            t.contactEmail.toLowerCase().includes(q) || 
+            String(t.id).includes(q)
+        );
+    }
+
+    renderAdminTable(filtered);
+}
+
+function renderAdminTable(tickets) {
+    const tbody = document.getElementById('ticketsTableBody');
+    const noRes = document.getElementById('noResults');
+    tbody.innerHTML = '';
+
+    if (tickets.length === 0) {
+        noRes.classList.remove('hidden');
+        return;
+    }
+    noRes.classList.add('hidden');
+
+    tickets.forEach(t => {
+        const row = document.createElement('tr');
+        const statusMap = { 'open': 'Pendente', 'in_progress': 'Tratando', 'resolved': 'Resolvido', 'closed': 'Fechado' };
+        const priorityLabels = { 'low': 'Baixa', 'medium': 'Média', 'high': 'Alta' };
+        
+        row.innerHTML = `
+            <td>#${String(t.id).padStart(5, '0')}</td>
+            <td><strong>${t.type}</strong></td>
+            <td>
+                <div style="font-weight: 600;">${t.contactName}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${t.contactEmail}</div>
+            </td>
+            <td>${t.city} / ${t.base}</td>
+            <td><span class="badge badge-${t.status}">${statusMap[t.status]}</span></td>
+            <td><span class="priority-dot ${t.priority}"></span> ${priorityLabels[t.priority]}</td>
+            <td>${new Date(t.created_at || t.createdAt).toLocaleDateString()}</td>
+            <td>
+                <button class="btn-secondary-sm" onclick="openTratativa(${t.id})">⚙️ Tratar</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// TRATATIVA MODAL
+let activeTicketId = null;
+
+function setupModalHandlers() {
+    document.getElementById('closeModal').addEventListener('click', () => {
+        document.getElementById('tratativaModal').classList.add('hidden');
+    });
+
+    document.getElementById('tratativaForm').addEventListener('submit', saveTratativa);
+}
+
+window.openTratativa = function(id) {
+    const t = allTickets.find(ticket => ticket.id === id);
+    if (!t) return;
+
+    activeTicketId = id;
+    document.getElementById('modalTicketId').textContent = `#${String(id).padStart(6, '0')}`;
+    document.getElementById('modalType').textContent = t.type;
+    document.getElementById('modalName').textContent = t.contactName;
+    document.getElementById('modalEmail').textContent = t.contactEmail;
+    document.getElementById('modalLoc').textContent = `${t.city} - ${t.base}`;
+    document.getElementById('modalObs').value = t.adminObservations || '';
+    document.getElementById('modalPhoto').value = t.adminPhotoUrl || '';
+
+    // Set Radio Status
+    const radio = document.querySelector(`input[name="modalStatus"][value="${t.status}"]`);
+    if (radio) radio.checked = true;
+
+    // Render Deadlines based on type
+    renderModalDeadlines(t);
+
+    document.getElementById('tratativaModal').classList.remove('hidden');
+};
+
+function renderModalDeadlines(t) {
+    const container = document.getElementById('modalDeadlines');
+    container.innerHTML = '';
+
+    if (t.type === 'MID') {
+        container.innerHTML = `
+            <div class="form-group">
+                <label>Prazo p/ Coleta (Busca)</label>
+                <input type="datetime-local" id="modalPickup" value="${formatForInput(t.deadlinePickup)}">
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="form-group">
+                <label>Prazo Visita</label>
+                <input type="datetime-local" id="modalVisit" value="${formatForInput(t.deadlineVisit)}">
+            </div>
+            <div class="form-group">
+                <label>Prazo Orçamento</label>
+                <input type="datetime-local" id="modalQuote" value="${formatForInput(t.deadlineQuote)}">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label>Prazo Final Entrega</label>
+                <input type="datetime-local" id="modalDelivery" value="${formatForInput(t.deadlineDelivery)}">
+            </div>
+        `;
+    }
+}
+
+function formatForInput(date) {
     if (!date) return '';
-    const d = new Date(date);
-    return d.toISOString().slice(0, 16);
+    return new Date(date).toISOString().slice(0, 16);
 }
 
-async function saveTicket(id) {
+async function saveTratativa(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
     try {
+        const t = allTickets.find(x => x.id === activeTicketId);
         const data = {
-            adminObservations: document.getElementById(`obs-${id}`).value,
-            adminPhotoUrl: document.getElementById(`photo-${id}`).value || null
+            status: document.querySelector('input[name="modalStatus"]:checked').value,
+            adminObservations: document.getElementById('modalObs').value,
+            adminPhotoUrl: document.getElementById('modalPhoto').value || null
         };
 
-        // Get ticket type to determine which deadlines to save
-        const response = await fetch(`${API_BASE}/tickets/${id}`);
-        const ticket = await response.json();
-
-        if (ticket.type !== 'MID') {
-            data.deadlineVisit = document.getElementById(`visit-${id}`).value || null;
-            data.deadlineQuote = document.getElementById(`quote-${id}`).value || null;
-            data.deadlineDelivery = document.getElementById(`delivery-${id}`).value || null;
+        if (t.type === 'MID') {
+            data.deadlinePickup = document.getElementById('modalPickup').value || null;
         } else {
-            data.deadlinePickup = document.getElementById(`pickup-${id}`).value || null;
+            data.deadlineVisit = document.getElementById('modalVisit').value || null;
+            data.deadlineQuote = document.getElementById('modalQuote').value || null;
+            data.deadlineDelivery = document.getElementById('modalDelivery').value || null;
         }
 
-        const updateResponse = await fetch(`${API_BASE}/tickets/${id}`, {
+        const res = await fetch(`${API_BASE}/tickets/${activeTicketId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
 
-        if (!updateResponse.ok) throw new Error('Erro ao salvar');
-        
-        showToast('Alterações salvas com sucesso!', 'success');
-        loadAdminTickets();
-    } catch (error) {
-        showToast(error.message, 'error');
+        if (!res.ok) throw new Error('Falha ao atualizar chamado');
+
+        showToast('Atualização salva e e-mail enviado!', 'success');
+        document.getElementById('tratativaModal').classList.add('hidden');
+        loadAdminData();
+    } catch (err) {
+        showToast(err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Salvar e Notificar Usuário';
     }
 }
 
-// Toast Notification
-function showToast(message, type = 'success') {
+async function syncSheets() {
+    const btn = document.getElementById('syncSheetsBtn');
+    btn.disabled = true;
+    try {
+        const res = await fetch(`${API_BASE}/sync-sheets`, { method: 'POST' });
+        const data = await res.json();
+        showToast(data.message);
+    } catch (err) {
+        showToast('Erro na sincronização', 'error');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+// TOAST UTILITY
+function showToast(msg, type = 'success') {
+    const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
+    toast.innerHTML = `
+        <span class="toast-msg">${msg}</span>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+    }, 10);
 
     setTimeout(() => {
-        toast.remove();
-    }, 3000);
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
 }

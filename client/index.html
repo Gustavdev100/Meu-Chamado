@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelpEmergência - Vale S.A.</title>
+    <title>Meu Chamado - CN | Gestão Unificada</title>
     <link rel="stylesheet" href="/styles.css">
     <script src="/config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
@@ -13,12 +16,12 @@
         <nav class="navbar">
             <div class="nav-container">
                 <div class="nav-logo">
-                    <span class="logo-text">Meu Chamado</span>
-                    <span class="logo-subtitle">Vale S.A.</span>
+                    <span class="logo-text">Meu Chamado - CN</span>
+                    <span class="logo-subtitle">Plataforma Unificada</span>
                 </div>
                 <div class="nav-menu" id="navMenu">
                     <a href="#" data-page="submit" class="nav-link active">Enviar Solicitação</a>
-                    <a href="#" data-page="track" class="nav-link">Rastrear</a>
+                    <a href="#" data-page="track" class="nav-link">Acompanhar</a>
                     <a href="#" data-page="admin" class="nav-link">Admin</a>
                 </div>
             </div>
@@ -26,141 +29,174 @@
 
         <!-- Content Pages -->
         <div class="pages-container">
+            
             <!-- PAGE: Enviar Solicitação -->
             <div id="submit-page" class="page active">
                 <div class="hero-section">
-                    <h1>Meu Chamado</h1>
-                    <p>Canal Unificado de Solicitações Vale S.A.</p>
+                    <div class="hero-content">
+                        <h1>Meu Chamado - CN</h1>
+                        <p>A maneira mais rápida e organizada de gerenciar suas solicitações.</p>
+                    </div>
+                    <div class="hero-bg-shapes">
+                        <div class="shape shape-1"></div>
+                        <div class="shape shape-2"></div>
+                    </div>
                 </div>
 
-                <div class="container">
+                <div class="container container-narrow">
                     <!-- Type Selection -->
                     <div id="typeSelection" class="type-selection">
-                        <h2>Selecione o Tipo de Solicitação</h2>
+                        <div class="section-title">
+                            <h2>O que você precisa hoje?</h2>
+                            <p>Escolha uma categoria para iniciar seu chamado</p>
+                        </div>
                         <div class="type-grid">
                             <div class="type-card" data-type="Compras">
-                                <div class="type-icon compras">📦</div>
+                                <div class="type-icon-wrapper compras">
+                                    <span class="type-icon">📦</span>
+                                </div>
                                 <h3>Compras</h3>
-                                <p>Solicitação de aquisição de materiais ou serviços.</p>
+                                <p>Aquisição de materiais, ferramentas ou serviços.</p>
+                                <span class="card-action">Iniciar →</span>
                             </div>
                             <div class="type-card" data-type="MID">
-                                <div class="type-icon mid">♻️</div>
+                                <div class="type-icon-wrapper mid">
+                                    <span class="type-icon">♻️</span>
+                                </div>
                                 <h3>MID (Descarte)</h3>
-                                <p>Descarte de materiais ou resíduos que estão em algum lugar.</p>
+                                <p>Coleta e descarte de materiais ou resíduos.</p>
+                                <span class="card-action">Iniciar →</span>
                             </div>
                             <div class="type-card" data-type="Chamados">
-                                <div class="type-icon chamados">🎧</div>
+                                <div class="type-icon-wrapper chamados">
+                                    <span class="type-icon">🎧</span>
+                                </div>
                                 <h3>Chamados</h3>
-                                <p>Suporte técnico ou manutenção geral.</p>
+                                <p>Suporte técnico, TI ou manutenção geral.</p>
+                                <span class="card-action">Iniciar →</span>
                             </div>
-                        </div>
-                        <div class="track-button">
-                            <a href="#" data-page="track" class="btn-outline">🔍 Acompanhar Minhas Solicitações</a>
                         </div>
                     </div>
 
-                    <!-- Form -->
+                    <!-- Form Container -->
                     <div id="formContainer" class="form-container hidden">
-                        <button id="backBtn" class="btn-back">← Voltar para seleção</button>
-                        <div class="form-card">
+                        <button id="backBtn" class="btn-back">
+                            <span class="icon">←</span> Voltar para categorias
+                        </button>
+                        
+                        <div class="glass-card form-card">
                             <div class="form-header">
-                                <div class="form-icon" id="formIcon">🎧</div>
-                                <div>
+                                <div class="form-icon-container" id="formIcon">🎧</div>
+                                <div class="form-title-group">
                                     <h2 id="formTitle">Solicitação de Chamados</h2>
-                                    <p>Preencha as informações detalhadamente.</p>
+                                    <p>Preencha os dados abaixo com atenção.</p>
                                 </div>
                             </div>
 
-                            <form id="ticketForm" class="form">
-                                <!-- Hidden fields for required backend data -->
+                            <form id="ticketForm" class="modern-form">
                                 <input type="hidden" id="title" name="title" value="">
-                                <input type="hidden" id="description" name="description" value="">
-
+                                
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="city">Cidade *</label>
-                                        <select id="city" name="city">
-                                            <option value="">Selecione...</option>
-                                            <option value="São Luís">São Luís</option>
-                                            <option value="Bacabeira">Bacabeira</option>
-                                            <option value="Açailândia">Açailândia</option>
-                                            <option value="Santa Inês">Santa Inês</option>
-                                            <option value="Alto Alegre">Alto Alegre</option>
-                                            <option value="Vitória do Mearim">Vitória do Mearim</option>
-                                        </select>
+                                        <label for="city">Cidade</label>
+                                        <div class="input-wrapper">
+                                            <select id="city" name="city" required>
+                                                <option value="" disabled selected>Selecione a cidade</option>
+                                                <option value="São Luís">São Luís</option>
+                                                <option value="Bacabeira">Bacabeira</option>
+                                                <option value="Açailândia">Açailândia</option>
+                                                <option value="Santa Inês">Santa Inês</option>
+                                                <option value="Alto Alegre">Alto Alegre</option>
+                                                <option value="Vitória do Mearim">Vitória do Mearim</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="base">Base *</label>
-                                        <select id="base" name="base">
-                                            <option value="">Escolha a cidade</option>
-                                        </select>
+                                        <label for="base">Base Atendimento</label>
+                                        <div class="input-wrapper">
+                                            <select id="base" name="base" required disabled>
+                                                <option value="">Escolha a cidade primeiro</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="contactName">Nome do Solicitante *</label>
-                                        <input type="text" id="contactName" name="contactName" placeholder="Nome completo">
+                                        <label for="contactName">Seu Nome</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="contactName" name="contactName" placeholder="Nome completo" required>
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="contactEmail">E-mail de Contato *</label>
-                                        <input type="email" id="contactEmail" name="contactEmail" placeholder="nome@vale.com">
+                                        <label for="contactEmail">E-mail Corporativo</label>
+                                        <div class="input-wrapper">
+                                            <input type="email" id="contactEmail" name="contactEmail" placeholder="exemplo@vale.com" required>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="priority">Urgência *</label>
-                                    <select id="priority" name="priority">
-                                        <option value="low">Baixa - Sem pressa</option>
-                                        <option value="medium" selected>Média - Necessário</option>
-                                        <option value="high">Alta - Urgente</option>
-                                    </select>
+                                    <label for="priority">Prioridade</label>
+                                    <div class="priority-selector">
+                                        <label class="priority-option">
+                                            <input type="radio" name="priority" value="low">
+                                            <span class="priority-label">Baixa</span>
+                                        </label>
+                                        <label class="priority-option">
+                                            <input type="radio" name="priority" value="medium" checked>
+                                            <span class="priority-label">Média</span>
+                                        </label>
+                                        <label class="priority-option">
+                                            <input type="radio" name="priority" value="high">
+                                            <span class="priority-label">Alta</span>
+                                        </label>
+                                    </div>
                                 </div>
 
-                                <!-- MID Fields -->
-                                <div id="midFields" class="form-section hidden">
-                                    <h3>Informações do Descarte</h3>
+                                <!-- Dynamic Fields -->
+                                <div id="midFields" class="dynamic-section hidden">
+                                    <div class="section-divider"><span>Dados do Descarte</span></div>
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label for="midLocation"><span id="midLocationRequired">*</span> Onde estão os materiais?</label>
-                                            <input type="text" id="midLocation" name="midLocation" placeholder="Ex: Galpão B2">
+                                            <label for="midLocation">Localização Exata</label>
+                                            <input type="text" id="midLocation" name="midLocation" placeholder="Ex: Galpão B2, Lado Sul">
                                         </div>
                                         <div class="form-group">
-                                            <label for="midMaterialType"><span id="midMaterialRequired">*</span> Tipo Principal de Resíduo</label>
-                                            <input type="text" id="midMaterialType" name="midMaterialType" placeholder="Ex: Sucata ferrosa">
+                                            <label for="midMaterialType">Tipo de Resíduo</label>
+                                            <input type="text" id="midMaterialType" name="midMaterialType" placeholder="Ex: Sucata ferrosa, Óleo">
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label>Itens a Descartar (Máx. 10)</label>
-                                        <div id="midItemsContainer">
-                                            <input type="text" class="mid-item-input" placeholder="Descreva o item 1">
+                                        <label>Itens detalhados</label>
+                                        <div id="midItemsContainer" class="items-list-container">
+                                            <input type="text" class="mid-item-input" placeholder="Item 1">
                                         </div>
-                                        <button type="button" id="addMidItemBtn" class="btn-add-item">+ Adicionar Item</button>
+                                        <button type="button" id="addMidItemBtn" class="btn-secondary-sm">+ Adicionar mais itens</button>
                                     </div>
                                 </div>
 
-                                <!-- Compras Fields -->
-                                <div id="comprasFields" class="form-section hidden">
-                                    <h3>Informações de Compra</h3>
+                                <div id="comprasFields" class="dynamic-section hidden">
+                                    <div class="section-divider"><span>Dados da Compra</span></div>
                                     <div class="form-group">
-                                        <label for="itemCategory"><span id="itemCategoryRequired">*</span> Categoria da Compra</label>
-                                        <input type="text" id="itemCategory" name="itemCategory" placeholder="Ex: EPIS, Ferramentas">
+                                        <label for="itemCategory">Categoria Principal</label>
+                                        <input type="text" id="itemCategory" name="itemCategory" placeholder="Ex: EPIS, Ferramentas Elétricas">
                                     </div>
                                     <div class="form-group">
-                                        <label>Lista de Itens (Máx. 6)</label>
-                                        <div id="itemsContainer">
-                                            <input type="text" class="item-input" placeholder="Descreva o item 1">
+                                        <label>Itens Solicitados</label>
+                                        <div id="itemsContainer" class="items-list-container">
+                                            <input type="text" class="item-input" placeholder="Item 1">
                                         </div>
-                                        <button type="button" id="addItemBtn" class="btn-add-item">+ Adicionar Item</button>
+                                        <button type="button" id="addItemBtn" class="btn-secondary-sm">+ Adicionar mais itens</button>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="description">Detalhes Adicionais</label>
-                                    <textarea id="description" name="description" placeholder="Forneça mais informações se necessário..." rows="6"></textarea>
+                                    <label for="description">Descrição do Problema / Necessidade</label>
+                                    <textarea id="description" name="description" rows="4" placeholder="Descreva aqui os detalhes da sua solicitação..."></textarea>
                                 </div>
 
-                                <button type="submit" id="submitBtn" class="btn-submit">Enviar Agora</button>
+                                <button type="submit" id="submitBtn" class="btn-primary-lg">Enviar Solicitação</button>
                             </form>
                         </div>
                     </div>
@@ -169,55 +205,185 @@
 
             <!-- PAGE: Rastrear -->
             <div id="track-page" class="page">
-                <div class="hero-section">
-                    <h1>Acompanhar Solicitação</h1>
-                    <p>Consulte o status em tempo real pelo seu e-mail corporativo.</p>
+                <div class="hero-section hero-compact">
+                    <h1>Meus Chamados</h1>
+                    <p>Consulte o status em tempo real</p>
                 </div>
-
-                <div class="container">
-                    <div class="search-card">
-                        <form id="trackForm" class="search-form">
-                            <input type="email" id="trackEmail" placeholder="seu.nome@vale.com" required>
-                            <button type="submit" id="trackBtn" class="btn-primary">Consultar Chamados</button>
+                <div class="container container-medium">
+                    <div class="glass-card search-card">
+                        <form id="trackForm" class="search-form-modern">
+                            <div class="search-input-group">
+                                <span class="search-icon">🔍</span>
+                                <input type="email" id="trackEmail" placeholder="Digite seu e-mail corporativo" required>
+                                <button type="submit" id="trackBtn" class="btn-primary">Consultar</button>
+                            </div>
                         </form>
                     </div>
-
-                    <div id="ticketsResult" class="hidden"></div>
+                    <div id="ticketsResult" class="tickets-grid"></div>
                 </div>
             </div>
 
             <!-- PAGE: Admin -->
             <div id="admin-page" class="page">
-                <div class="hero-section">
-                    <h1>Painel Administrativo</h1>
-                    <p>Gerenciar solicitações e tratativas.</p>
+                <div class="hero-section hero-compact">
+                    <h1>Painel de Gestão - CN</h1>
+                    <p>Controle e tratativa de solicitações</p>
                 </div>
 
-                <div class="container">
-                    <div id="adminLogin" class="admin-login">
-                        <div class="login-card">
-                            <h2>Acesso Restrito</h2>
-                            <form id="loginForm">
+                <div class="container container-full">
+                    <div id="adminLogin" class="admin-login-flow">
+                        <div class="glass-card login-card-modern">
+                            <div class="login-header">
+                                <span class="lock-icon">🔒</span>
+                                <h2>Acesso Restrito</h2>
+                                <p>Insira a senha de administrador</p>
+                            </div>
+                            <form id="loginForm" class="modern-form">
                                 <div class="form-group">
-                                    <label for="adminPassword">Senha de Acesso</label>
-                                    <input type="password" id="adminPassword" placeholder="Digite a senha" required>
+                                    <input type="password" id="adminPassword" placeholder="Senha de acesso" required>
                                 </div>
-                                <button type="submit" class="btn-primary">Entrar</button>
+                                <button type="submit" class="btn-primary-lg">Entrar no Dashboard</button>
                             </form>
                         </div>
                     </div>
 
-                    <div id="adminPanel" class="admin-panel hidden">
-                        <div class="admin-controls">
-                            <button id="syncSheetsBtn" class="btn-primary">📊 Sincronizar com Google Sheets</button>
-                            <button id="adminLogout" class="btn-logout">Sair</button>
+                    <div id="adminPanel" class="admin-dashboard hidden">
+                        <!-- Dashboard Stats -->
+                        <div class="dashboard-stats" id="dashboardStats">
+                            <div class="stat-card" data-filter="all">
+                                <div class="stat-icon all">📊</div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="stat-total">0</span>
+                                    <span class="stat-label">Total Geral</span>
+                                </div>
+                            </div>
+                            <div class="stat-card" data-filter="open">
+                                <div class="stat-icon open">🟡</div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="stat-open">0</span>
+                                    <span class="stat-label">Pendentes</span>
+                                </div>
+                            </div>
+                            <div class="stat-card" data-filter="in_progress">
+                                <div class="stat-icon progress">🔵</div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="stat-progress">0</span>
+                                    <span class="stat-label">Em Tratativa</span>
+                                </div>
+                            </div>
+                            <div class="stat-card" data-filter="resolved">
+                                <div class="stat-icon resolved">🟢</div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="stat-resolved">0</span>
+                                    <span class="stat-label">Resolvidos</span>
+                                </div>
+                            </div>
                         </div>
-                        <div id="ticketsList" class="tickets-list"></div>
+
+                        <!-- Dashboard Controls -->
+                        <div class="dashboard-controls">
+                            <div class="search-bar">
+                                <input type="text" id="adminSearch" placeholder="Pesquisar por nome, e-mail ou ID...">
+                            </div>
+                            <div class="action-buttons">
+                                <button id="syncSheetsBtn" class="btn-secondary-sm">📊 Sincronizar Google Sheets</button>
+                                <button id="adminLogout" class="btn-danger-sm">Encerrar Sessão</button>
+                            </div>
+                        </div>
+
+                        <!-- Data Table -->
+                        <div class="table-container glass-card">
+                            <table class="vale-table" id="valeTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tipo</th>
+                                        <th>Solicitante</th>
+                                        <th>Localização</th>
+                                        <th>Status</th>
+                                        <th>Prioridade</th>
+                                        <th>Data</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ticketsTableBody">
+                                    <!-- Rows added via JS -->
+                                </tbody>
+                            </table>
+                            <div id="noResults" class="empty-table-state hidden">
+                                <h3>Nenhum chamado encontrado</h3>
+                                <p>Tente ajustar sua busca ou filtros.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- NOTIFICATION MODAL (TRATATIVA) -->
+        <div id="tratativaModal" class="modal-overlay hidden">
+            <div class="modal-content glass-card">
+                <div class="modal-header">
+                    <h3>Tratativa do Chamado <span id="modalTicketId">#000000</span></h3>
+                    <button class="close-modal" id="closeModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="ticket-summary">
+                        <div class="summary-item"><span class="label">Tipo:</span> <span id="modalType" class="val"></span></div>
+                        <div class="summary-item"><span class="label">Solicitante:</span> <span id="modalName" class="val"></span></div>
+                        <div class="summary-item"><span class="label">E-mail:</span> <span id="modalEmail" class="val"></span></div>
+                        <div class="summary-item"><span class="label">Cidade/Base:</span> <span id="modalLoc" class="val"></span></div>
+                    </div>
+                    
+                    <div class="form-divider"><span>Ações de Tratativa</span></div>
+                    
+                    <form id="tratativaForm" class="modern-form">
+                        <div class="form-group">
+                            <label>Status da Solicitação</label>
+                            <div class="status-selector-grid">
+                                <label class="status-radio open">
+                                    <input type="radio" name="modalStatus" value="open">
+                                    <span>Pendente</span>
+                                </label>
+                                <label class="status-radio in_progress">
+                                    <input type="radio" name="modalStatus" value="in_progress">
+                                    <span>Tratando</span>
+                                </label>
+                                <label class="status-radio resolved">
+                                    <input type="radio" name="modalStatus" value="resolved">
+                                    <span>Resolvido</span>
+                                </label>
+                                <label class="status-radio closed">
+                                    <input type="radio" name="modalStatus" value="closed">
+                                    <span>Fechado</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Observações / Resposta ao Solicitante</label>
+                            <textarea id="modalObs" rows="4" placeholder="Descreva o que foi feito..."></textarea>
+                        </div>
+
+                        <div id="modalDeadlines" class="modal-deadlines-grid">
+                            <!-- Dynamic deadlines here -->
+                        </div>
+
+                        <div class="form-group">
+                            <label>Link de Evidência / Foto</label>
+                            <input type="url" id="modalPhoto" placeholder="URL da foto (ex: Google Drive, OneDrive)">
+                        </div>
+
+                        <button type="submit" class="btn-primary-lg">Salvar e Notificar Usuário</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
     </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <script src="/script.js"></script>
 </body>

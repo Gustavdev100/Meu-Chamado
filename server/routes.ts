@@ -4,13 +4,14 @@ import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import { log } from "./index";
+import { sendTicketConfirmation, sendTicketUpdate } from "./email";
 
 // Google Apps Script Webhook URL
 const SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbx2UE8Z2Qn4bXpiab8E0lWp3uxrd6BK2pIv4AjlJnZZqxdMiqK8A3e0AeMwZfk4Acuw/exec';
 log(`✅ Webhook ativo: Sincronizando com Google Sheets`, 'webhook');
 
 // Função para enviar dados ao Google Sheets via webhook
-async function syncToGoogleSheets(ticket: any) {
+async function syncToGoogleSheets(_ticket: any) {
   // ⚠️ WEBHOOK DESABILITADO
   // Apps Script não está respondendo (401). 
   // O sistema funciona 100% sem isso - todos dados salvam no PostgreSQL.
@@ -22,7 +23,7 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  app.get(api.tickets.list.path, async (req, res) => {
+  app.get(api.tickets.list.path, async (_req, res) => {
     const tickets = await storage.getTickets();
     res.json(tickets);
   });
@@ -44,6 +45,11 @@ export async function registerRoutes(
       syncToGoogleSheets(ticket).catch(err => 
         log(`Erro na sincronização: ${err}`, 'webhook')
       );
+
+      // Enviar e-mail de confirmação para o solicitante
+      sendTicketConfirmation(ticket).catch(err =>
+        log(`Erro ao enviar e-mail de confirmação: ${err}`, 'email')
+      );
       
       res.status(201).json(ticket);
     } catch (err) {
@@ -53,6 +59,7 @@ export async function registerRoutes(
           field: err.errors[0].path.join("."),
         });
       }
+      console.error("Error creating ticket:", err);
       res.status(500).json({ message: "Internal server error" });
     }
   });
@@ -64,6 +71,12 @@ export async function registerRoutes(
       if (!ticket) {
         return res.status(404).json({ message: "Ticket not found" });
       }
+
+      // Enviar e-mail de atualização para o solicitante
+      sendTicketUpdate(ticket).catch(err =>
+        log(`Erro ao enviar e-mail de atualização: ${err}`, 'email')
+      );
+
       res.json(ticket);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -133,24 +146,33 @@ export async function registerRoutes(
         description: "Não consigo fazer login usando minhas credenciais corporativas.",
         status: "open",
         priority: "high",
+        type: "Chamados",
         contactName: "João Silva",
         contactEmail: "joao.silva@exemplo.com",
+        city: "São Paulo",
+        base: "Sede",
       });
       await storage.createTicket({
         title: "Solicitação de novo monitor",
         description: "Meu monitor atual está com pixels queimados, gostaria de solicitar a troca.",
         status: "in_progress",
         priority: "medium",
+        type: "Compras",
         contactName: "Maria Oliveira",
         contactEmail: "maria.oliveira@exemplo.com",
+        city: "Rio de Janeiro",
+        base: "Filial Sul",
       });
       await storage.createTicket({
         title: "Dúvida sobre férias",
         description: "Como faço para visualizar meu saldo de férias atualizado?",
         status: "resolved",
         priority: "low",
+        type: "Chamados",
         contactName: "Carlos Pereira",
         contactEmail: "carlos.pereira@exemplo.com",
+        city: "Curitiba",
+        base: "Centro",
       });
     }
   } catch (error) {

@@ -1,0 +1,14 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[1G[0K5:02:15 PM [init] Using PostgreSQL storage (Google Sheets not configured)
+5:02:15 PM [webhook] ✅ Webhook ativo: Sincronizando com Google Sheets
+5:02:15 PM [express] Fetched 19 tickets from PostgreSQL
+5:02:15 PM [express] serving on port 5000
+5:02:24 PM [express] Created ticket #22 in PostgreSQL
+5:02:24 PM [webhook] 📝 Ticket #22 salvo no PostgreSQL (Sheets offline)
+5:02:24 PM [express] POST /api/tickets 201 in 180ms :: {"id":22,"title":"Teste Rápido","description":"Teste sem webhook","type":"Compras","status":"open","priority":"high","city":"São Luís","base":"Base Porto","contactName":"Teste Rápido","contactEmail":"teste@vale.com","midLocation":null,"midMaterialType":null,"itemCategory":"EPIs","items":"[\"Test\"]","adminObservations":null,"adminPhotoUrl":null,"deadlineVisit":null,"deadlineQuote":null,"deadlineDelivery":null,"deadlinePickup":null,"createdAt":"2026-03-11T17:02:23.929Z"}
+5:03:16 PM [express] Created ticket #23 in PostgreSQL
+5:03:16 PM [webhook] 📝 Ticket #23 salvo no PostgreSQL (Sheets offline)
+5:03:16 PM [express] POST /api/tickets 201 in 15ms :: {"id":23,"title":"Solicitação de Chamados - Gustavo","description":"teste ","type":"Chamados","status":"open","priority":"low","city":"São Luís","base":"Base Porto","contactName":"Gustavo","contactEmail":"c070969@vale.com","midLocation":"","midMaterialType":"","itemCategory":"","items":null,"adminObservations":null,"adminPhotoUrl":null,"deadlineVisit":null,"deadlineQuote":null,"deadlineDelivery":null,"deadlinePickup":null,"createdAt":"2026-03-11T17:03:16.562Z"}

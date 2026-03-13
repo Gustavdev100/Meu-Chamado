@@ -60,10 +60,10 @@ export class GoogleSheetsStorage implements ISheetsStorage {
       itemCategory: row[13] || '',
       adminObservations: row[14] || '',
       adminPhotoUrl: row[15] || '',
-      deadlineVisit: row[16] ? new Date(row[16]) : undefined,
-      deadlineQuote: row[17] ? new Date(row[17]) : undefined,
-      deadlineDelivery: row[18] ? new Date(row[18]) : undefined,
-      deadlinePickup: row[19] ? new Date(row[19]) : undefined,
+      deadlineVisit: row[16] ? new Date(row[16]) : null,
+      deadlineQuote: row[17] ? new Date(row[17]) : null,
+      deadlineDelivery: row[18] ? new Date(row[18]) : null,
+      deadlinePickup: row[19] ? new Date(row[19]) : null,
       createdAt: row[20] ? new Date(row[20]) : new Date()
     };
   }
@@ -138,9 +138,22 @@ export class GoogleSheetsStorage implements ISheetsStorage {
       const nextId = tickets.length > 0 ? Math.max(...tickets.map(t => t.id)) + 1 : 1;
 
       const newTicket: Ticket = {
-        id: nextId,
         ...ticket,
-        createdAt: new Date()
+        id: nextId,
+        type: ticket.type || 'Chamados',
+        status: ticket.status || 'open',
+        priority: ticket.priority || 'medium',
+        createdAt: new Date(),
+        midLocation: ticket.midLocation || null,
+        midMaterialType: ticket.midMaterialType || null,
+        itemCategory: ticket.itemCategory || null,
+        items: ticket.items || null,
+        adminObservations: ticket.adminObservations || null,
+        adminPhotoUrl: ticket.adminPhotoUrl || null,
+        deadlineVisit: ticket.deadlineVisit || null,
+        deadlineQuote: ticket.deadlineQuote || null,
+        deadlineDelivery: ticket.deadlineDelivery || null,
+        deadlinePickup: ticket.deadlinePickup || null,
       };
 
       const row = this.ticketToRow(newTicket);

@@ -1,0 +1,11 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[1G[0K5:07:14 PM [init] Using PostgreSQL storage (Google Sheets not configured)
+5:07:14 PM [webhook] ✅ Webhook ativo: Sincronizando com Google Sheets
+5:07:14 PM [express] Fetched 21 tickets from PostgreSQL
+5:07:14 PM [express] serving on port 5000
+5:07:25 PM [express] Created ticket #24 in PostgreSQL
+5:07:25 PM [express] POST /api/tickets 201 in 79ms :: {"id":24,"title":"Teste Sincronização Google Sheets","description":"Verificando se sincroniza com a planilha","type":"MID","status":"open","priority":"high","city":"Bacabeira","base":"Base Bacabeira","contactName":"Teste Google Sheets","contactEmail":"teste@vale.com","midLocation":"Galpão Principal","midMaterialType":"Plástico Reciclável","itemCategory":null,"items":"[\"Plástico tipo 1\"]","adminObservations":null,"adminPhotoUrl":null,"deadlineVisit":null,"deadlineQuote":null,"deadlineDelivery":null,"deadlinePickup":null,"createdAt":"2026-03-11T17:07:25.095Z"}
+5:07:27 PM [webhook] ⚠️ Webhook retornou 401

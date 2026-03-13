@@ -1,0 +1,8 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[1G[0K12:54:29 PM [init] Using PostgreSQL storage (Google Sheets not configured)
+12:54:29 PM [webhook] Webhook URL carregada: ❌ NÃO
+12:54:29 PM [express] Fetched 5 tickets from PostgreSQL
+12:54:29 PM [express] serving on port 5000

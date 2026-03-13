@@ -3,11 +3,11 @@ import { type Server } from "http";
 import fs from "fs";
 import path from "path";
 
-export async function setupVite(server: Server, app: Express) {
+export async function setupVite(_server: Server, app: Express) {
   // Serve static files from client directory
   const clientPath = path.resolve(import.meta.dirname, "..", "client");
   
-  app.use("/", (req, res, next) => {
+  app.use("/", (req, res, _next) => {
     // Try to serve the requested file
     let filePath = path.join(clientPath, req.path);
     

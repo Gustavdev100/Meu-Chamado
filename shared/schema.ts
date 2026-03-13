@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -29,7 +29,21 @@ export const tickets = pgTable("tickets", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertTicketSchema = createInsertSchema(tickets).omit({ id: true, createdAt: true });
+export const insertTicketSchema = createInsertSchema(tickets, {
+  type: z.string(),
+  status: z.string(),
+  priority: z.string(),
+  city: z.string(),
+  base: z.string(),
+  contactName: z.string(),
+  contactEmail: z.string(),
+  midLocation: z.string().nullable().optional(),
+  midMaterialType: z.string().nullable().optional(),
+  itemCategory: z.string().nullable().optional(),
+  items: z.string().nullable().optional(),
+  adminObservations: z.string().nullable().optional(),
+  adminPhotoUrl: z.string().nullable().optional(),
+}).omit({ id: true, createdAt: true });
 
 export type InsertTicket = z.infer<typeof insertTicketSchema>;
 export type Ticket = typeof tickets.$inferSelect;
